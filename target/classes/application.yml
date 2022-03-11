@@ -1,11 +1,10 @@
 
-
-
 spring:
+  #数据源
   datasource:
     username: root
     password: root
-    url: jdbc:mysql://localhost:3306/community?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/community?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     #  数据源其他配置
@@ -25,18 +24,43 @@ spring:
     maxPoolPreparedStatementPerConnectionSize: 20
     useGlobalDataSourceStat: true
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMills=500
+  #配置thymeleaf
   thymeleaf:
     cache: false
-    prefix: classpath:/templates
-    suffix: .html
-    encoding: UTF-8
-    mode: HTML
-  mvc:
-    static-path-pattern: /static/**
+  #配置mail
+  mail:
+    host: smtp.sina.com
+    port: 465
+    username: rookie_dream@sina.com
+    password: 50a305e80fbe337f
+    protocol: smtps
+  #redis
+  redis:
+    database: 11
+    host: localhost
+    port: 6379
+  #kafka配置
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: community-consumer-group
+      #是否自动提交
+      enable-auto-commit: true
+      #自动提交的频率
+      auto-commit-interval: 3000
+  data:
+    #elasticsearc配置
+    elasticsearch:
+      repositories:
+        enabled: true
+
+
 #整合mybatis
 mybatis:
   type-aliases-package: com.rookie.community.pojo
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
+    #使用自动生成id
     use-generated-keys: true
+

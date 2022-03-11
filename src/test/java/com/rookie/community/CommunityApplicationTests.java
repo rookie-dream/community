@@ -24,7 +24,7 @@ class CommunityApplicationTests {
     public void testDiscussPostMapper(){
         int i = discussPostMapper.selectDiscussPostRows(149);
         System.out.println(i);
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(149, 0, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(149, 0, 10,0);
         for (DiscussPost discussPost : discussPosts) {
             System.out.println(discussPost);
         }

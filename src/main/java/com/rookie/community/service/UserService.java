@@ -1,25 +1,41 @@
 package com.rookie.community.service;
 
+import com.rookie.community.pojo.LoginTicket;
 import com.rookie.community.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Repository;
 
-@Mapper
-@Repository
+import java.util.Collection;
+import java.util.Map;
+
 public interface UserService {
 
-    User selectById(int id);
+    User findUserById(int id);
 
-    User selectByName(String username);
+    User findUserByName(String username);
 
-    User selectByEmail(String email);
 
-    int insertUser(User user);
+//注册账号
+    Map<String,Object> register(User user);
+//激活账号
+    int activation(int userId,String code);
+//账号登录
+    Map<String,Object> login(String username,String password ,long expiredSeconds);
 
-    int updateStatus(int id, int status);
+//    注销登录
+    void logout(String ticket);
 
-    int updateHeader(int id, String headerUrl);
+//    查找登录ticket
+    LoginTicket findLoginTicket(String ticket);
 
-    int updatePassword(int id, String password);
+//    修改头像
+    int updateHeader(int userId,String headerUrl);
+
+
+    Collection<? extends GrantedAuthority> getAuthorities(int userId);
+
+
+
 
 }
