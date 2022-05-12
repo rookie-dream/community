@@ -9,8 +9,27 @@
 	top: 12px;
 	left: -3px;
 }
-
-.toast {
+.toast1 {
+	position: relative;
+	float: right;
 	max-width: 100%;
+	width: 60%;
+}
+.toast {
+	max-width: 70%;
+}
+
+.l{
+	width: 100%;
+}
+
+.chat{
+	position: relative;
 	width: 80%;
+	left: 10%;
+}
+
+.chat .textarea{
+	position: relative;
+	width: 90%;
 }

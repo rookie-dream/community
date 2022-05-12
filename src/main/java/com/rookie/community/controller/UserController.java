@@ -3,6 +3,7 @@ package com.rookie.community.controller;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.rookie.community.annotation.LoginRequired;
+import com.rookie.community.config.AliyunConfig;
 import com.rookie.community.pojo.User;
 import com.rookie.community.service.FollowServiceImpl;
 import com.rookie.community.service.LikeServiceImpl;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 @Controller
 @RequestMapping("/user")
@@ -37,6 +40,8 @@ public class UserController implements CommunityConstant {
     String domain;
     @Value("${server.servlet.context-path}")
     String contextPath;
+    @Value("${aliyun.oss.headUrl}")
+    private String headUrl;
 
     @Value("${qinniu.key.access}")
     private String accessKey;
@@ -55,9 +60,13 @@ public class UserController implements CommunityConstant {
     private FollowServiceImpl followService;
     @Autowired
     private HostHolder hostHolder;
+    @Autowired
+    private AliyunConfig aliyunConfig;
 
+
+    //废弃
     @LoginRequired
-    @GetMapping("/setting")
+    @GetMapping("/modifyHead")
     public String getSettingPage(Model model) {
         //生成上传文件的名称
         String fileName = CommunityUtil.generateUUID();
@@ -70,7 +79,7 @@ public class UserController implements CommunityConstant {
         model.addAttribute("uploadToken",uploadToken);
         model.addAttribute("fileName",fileName);
 
-        return "/site/setting";
+        return "site/modifyHead";
     }
 
     //更新头像路径
@@ -87,41 +96,32 @@ public class UserController implements CommunityConstant {
     }
 
 
-   //废弃
     @LoginRequired
     @PostMapping("/upload")
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
             model.addAttribute("error", "您还没有选择图片！");
-            return "/site/setting";
+            return "/site/modifyHead";
         }
         String filename = headerImage.getOriginalFilename();
         String suffix = filename.substring(filename.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
             model.addAttribute("error", "文件格式不正确！");
-            return "/site/setting";
+            return "/site/modifyHead";
         }
+        User user = hostHolder.getUser();
 
 //        生成随机文件名
         filename = CommunityUtil.generateUUID() + suffix;
-//        确定文件存放的路径
-        File dest = new File(uploadPath + "/" + filename);
         try {
-//            存储文件
-            headerImage.transferTo(dest);
+            String headerUrl = aliyunConfig.uploadFileImg(headerImage, headUrl+filename);
+
+            //        更新当前用户的头像的路径
+            userService.updateHeader(user.getId(), headerUrl);
         } catch (IOException e) {
-            logger.error("上传文件失败：" + e.getMessage());
-            throw new IllegalArgumentException("上传文件失败，服务器发生异常！", e);
+            throw new IllegalArgumentException("上传头像异常："+e.getMessage());
         }
-
-//        更新当前用户的头像的路径
-        User user = hostHolder.getUser();
-
-        String headerUrl = domain + contextPath + "/user/header/" + filename;
-        userService.updateHeader(user.getId(), headerUrl);
-
-        return "redirect:/index";
-
+        return "redirect:/user/profile/"+user.getId();
     }
 
     //废弃
@@ -161,8 +161,6 @@ public class UserController implements CommunityConstant {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     //个人主页
@@ -194,6 +192,42 @@ public class UserController implements CommunityConstant {
 
         return "/site/profile";
 
+    }
+
+    //跳转到修改密码
+    @GetMapping("/setting")
+    public String getSettingPage1() {
+        return "site/setting";
+    }
+    //修改密码
+    @PostMapping("/pwdModify")
+    public String pwdModify(Model model,String oldpassword,String newpassword,String rnewpassword,@CookieValue("ticket") String ticket){
+        model.addAttribute("oldpassword",oldpassword);
+        model.addAttribute("newpassword",newpassword);
+        model.addAttribute("rnewpassword",rnewpassword);
+        final User user = hostHolder.getUser();
+        if (oldpassword==null||oldpassword.equals("")){
+            model.addAttribute("oldpasswordMsg", "原密码不能为空！");
+           return  "site/setting";
+        }
+        oldpassword += user.getSalt();
+
+        if (!CommunityUtil.md5(oldpassword).equals(user.getPassword())){
+            model.addAttribute("oldpasswordMsg", "原密码不正确！");
+            return  "site/setting";
+        }
+        if (newpassword==null||newpassword.equals("")){
+            model.addAttribute("newpasswordMsg", "密码不能为空！");
+            return  "site/setting";
+        }
+        if (!newpassword.equals(rnewpassword)){
+            model.addAttribute("rnewpasswordMsg", "两次密码不一致！");
+            return  "site/setting";
+        }
+        userService.updatePassword(user.getId(), CommunityUtil.md5(newpassword += user.getSalt()));
+        userService.logout(ticket);
+        SecurityContextHolder.clearContext();
+        return "redirect:/login";
     }
 
 

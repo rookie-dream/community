@@ -58,6 +58,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     }
 
     @Override
+    public int updatePassword(int id, String password) {
+        return userMapper.updatePassword(id, password);
+    }
+
+    @Override
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 
@@ -99,16 +104,12 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         user.setHeaderUrl(String.format("http://images.nowcoder.com/head/%dt.png", new Random().nextInt(1000)));
         user.setCreateTime(new Date());
         userMapper.insertUser(user);
-
 //        发送激活邮件
         Context context = new Context();
         context.setVariable("email", user.getEmail());
-//        http://localhost:8080/community/activation/101(userId)/code
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
-
         String content = templateEngine.process("/mail/activation", context);
-
         mailClient.setMail(user.getEmail(), "激活账户", content);
 
 
@@ -165,14 +166,12 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds*1000));
-
         String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(ticketKey,loginTicket);
-
-
         map.put("ticket", loginTicket.getTicket());
         return map;
     }
+
 
     @Override
     public void logout(String ticket) {

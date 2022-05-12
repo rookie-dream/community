@@ -59,7 +59,6 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
         List<DiscussPost> list = new ArrayList<>();
         for (SearchHit<DiscussPost> hit : searchHits) {
             DiscussPost post = new DiscussPost();
-
             post.setId(hit.getContent().getId());
             post.setUserId(hit.getContent().getUserId());
             post.setTitle(hit.getContent().getTitle());
@@ -68,15 +67,11 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
             post.setScore(hit.getContent().getScore());
             post.setCreateTime(hit.getContent().getCreateTime());
             post.setCommentCount(hit.getContent().getCommentCount());
-
-            
             // 处理高亮显示的结果
             List<String> title = hit.getHighlightFields().get("title");
             if (title != null) {
                 post.setTitle(title.get(0));
-
             }
-
             List<String> content = hit.getHighlightFields().get("content");
             if (content != null) {
                 post.setContent(content.get(0));

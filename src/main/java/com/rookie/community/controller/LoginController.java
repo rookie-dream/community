@@ -133,6 +133,7 @@ public class LoginController implements CommunityConstant {
         model.addAttribute("code", code);
         model.addAttribute("remeberMe", remeberMe);
         String kaptcha = null;
+        //库kei
         String kaptchaOwner = CookieUtil.getValue(request, "kaptchaOwner");
         if (StringUtils.isNoneBlank(kaptchaOwner)) {
             String kaptchaKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);

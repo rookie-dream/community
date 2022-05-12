@@ -61,8 +61,9 @@ public class MessageController implements CommunityConstant {
     }
 
     //私信详情
-    @GetMapping("/letter/detail/{conversationId}/{lastCurrent}")
-    private String getLetterDetail(@PathVariable("conversationId") String conversationId, Page page, Model model, @PathVariable("lastCurrent") int lastCurrent) {
+    @GetMapping("/letter/detail/{conversationId}")
+    private String getLetterDetail(@PathVariable("conversationId") String conversationId, Page page, Model model, @RequestParam("current") int lastCurrent) {
+
         User user = hostHolder.getUser();
         page.setLimit(LETTER_DETAIL_LIMIT);
         page.setPath("/message/letter/detail/" + conversationId);
@@ -137,6 +138,9 @@ public class MessageController implements CommunityConstant {
         User user = hostHolder.getUser();
         if (target == null) {
             return CommunityUtil.getJSONString(1, "目标用户不存在");
+        }
+        if (content==null||content.equals("")){
+            return CommunityUtil.getJSONString(1);
         }
         Message message = new Message();
         message.setFromId(user.getId());

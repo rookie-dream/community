@@ -14,6 +14,8 @@ public interface UserService {
     User findUserById(int id);
 
     User findUserByName(String username);
+    //修改密码
+    int updatePassword(int id, String password);
 
 
 //注册账号

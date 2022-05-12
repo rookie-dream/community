@@ -20,11 +20,13 @@ import java.util.Date;
 public class ServiceLogAspect {
     private static final Logger logger = LoggerFactory.getLogger(ServiceLogAspect.class);
 
+
+    //切点;
     @Pointcut("execution(* com.rookie.community.service.*.*(..))")
     public void pointcut() {
 
     }
-
+    // 通知：连接点前;
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
         //用户[1.2.3.4],在[xxx],访问了[com.rookie.community.service.xxx()]
