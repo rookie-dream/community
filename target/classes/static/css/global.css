@@ -14,17 +14,23 @@ html {
 	height: auto;
 	min-height: 100%;
 }
-
-.container {
-	width: 960px;
-	padding: 0;
+.bg-my{
+	background-color: #8aefe6 !important;
 }
 
+.container {
+	width: 90%;
+	padding: 0;
+}
+.ba{
+	background: url('https://rookie-community.oss-cn-qingdao.aliyuncs.com/img/other/beijing.webp') no-repeat  !important;
+	background-size:cover !important;
+}
 header .navbar-brand {
-	background: url('http://static.nowcoder.com/images/res/logo/logo-v3.png') no-repeat;
-	background-size: 147px 42px;
-	width: 147px;
-	height: 42px;
+	background: url('https://rookie-community.oss-cn-qingdao.aliyuncs.com/img/other/rookie1.png') no-repeat;
+	background-size: 103px 48px;
+	width: 103px;
+	height: 48px;
 	margin: 5px 15px 5px 0;
 }
 
@@ -142,4 +148,10 @@ a:hover {
 em {
 	font-style: normal;
 	color: red;
+}
+
+
+.bird{
+	position: fixed;
+	top: 150px;
 }
